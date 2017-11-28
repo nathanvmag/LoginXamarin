@@ -2,21 +2,65 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using System.Net;
+using System.Net.Sockets;
 namespace Login
 {
    
     public partial class MainPage : ContentPage
 	{
-
+        ////////////////////RICKÃO COLOCOU AQUI/////////////////////////////////
+        internal class StateObject
+        {
+            internal byte[] sBuffer;
+            internal Socket sSocket;
+            internal StateObject(int size, Socket sock)
+            {
+                sBuffer = new byte[size];
+                sSocket = sock;
+            }
+        }
+        ////////////////////RICKÃO COLOCOU AQUI/////////////////////////////////
         public MainPage()
         {
             InitializeComponent();
             WebClient webclient = new WebClient();
             StackLayout st1 = new StackLayout();
             st1.HorizontalOptions = LayoutOptions.FillAndExpand;
+            ////////////////////RICKÃO COLOCOU AQUI/////////////////////////////////
+            IPAddress ipAddress =
+            Dns.Resolve(Dns.GetHostName()).AddressList[0];
+
+            IPEndPoint ipEndpoint =
+              new IPEndPoint(ipAddress, 1800);
+
+            Socket listenSocket =
+              new Socket(AddressFamily.InterNetwork,
+                         SocketType.Stream,
+                         ProtocolType.Tcp);
+
+            listenSocket.Bind(ipEndpoint);
+            listenSocket.Listen(1);
+            IAsyncResult asyncAccept = listenSocket.BeginAccept(
+              new AsyncCallback(Server.acceptCallback),
+              listenSocket);
+
+            // could call listenSocket.EndAccept(asyncAccept) here
+            // instead of in the callback method, but since 
+            // EndAccept blocks, the behavior would be similar to 
+            // calling the synchronous Accept method
+
+            Console.Write("Connection in progress.");
+            if (writeDot(asyncAccept) == true)
+            {
+                // allow time for callbacks to
+                // finish before the program ends 
+                Thread.Sleep(3000);
+            }
+            ////////////////////RICKÃO COLOCOU AQUI/////////////////////////////////
 
             Label lb1 = new Label();
             lb1.Text = "VOCÊ ESTA REGISTRANDO";
