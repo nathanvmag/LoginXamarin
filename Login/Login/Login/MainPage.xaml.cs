@@ -13,7 +13,7 @@ namespace Login
     public partial class MainPage : ContentPage
 	{
         ////////////////////RICKÃO COLOCOU AQUI/////////////////////////////////
-        internal class StateObject
+    /*    internal class StateObject
         {
             internal byte[] sBuffer;
             internal Socket sSocket;
@@ -22,7 +22,7 @@ namespace Login
                 sBuffer = new byte[size];
                 sSocket = sock;
             }
-        }
+        }*/
         ////////////////////RICKÃO COLOCOU AQUI/////////////////////////////////
         public MainPage()
         {
@@ -31,7 +31,8 @@ namespace Login
             StackLayout st1 = new StackLayout();
             st1.HorizontalOptions = LayoutOptions.FillAndExpand;
             ////////////////////RICKÃO COLOCOU AQUI/////////////////////////////////
-            IPAddress ipAddress =
+
+            /*IPAddress ipAddress =
             Dns.Resolve(Dns.GetHostName()).AddressList[0];
 
             IPEndPoint ipEndpoint =
@@ -61,7 +62,7 @@ namespace Login
                 Thread.Sleep(3000);
             }
             ////////////////////RICKÃO COLOCOU AQUI/////////////////////////////////
-
+            */
             Label lb1 = new Label();
             lb1.Text = "VOCÊ ESTA REGISTRANDO";
             lb1.FontSize *= 1.6f;
@@ -97,15 +98,12 @@ namespace Login
                 if (email1.Text != "" && pass1.Text != "") {
                     try
                     {
-                        string result = webclient.DownloadString("https://godsofnave.000webhostapp.com/login.php?serv=2&email=" + email1.Text + "&pass=" + pass1.Text);
-                        if (result == "ok")
-                        {
-                            DisplayAlert("Sucesso", "Registrado com sucesso", "OK");
-                        }
+                        SendInformationToServer(email1 + "|" + pass1);
+                       
                     }
-                    catch
+                    catch(Exception e)
                     {
-                        DisplayAlert("Erro", "Problemas de conexão", "OK");
+                        DisplayAlert("Erro", e.ToString(), "OK");
                     }
                 }
                 else
@@ -199,5 +197,15 @@ namespace Login
                  this.Content = st1;
              };
         }
-	}
+        void SendInformationToServer(string stringToSend)
+        { 
+            TcpClient client = new TcpClient();
+            IPAddress serverAddress = IPAddress.Parse("http://godsofnave.000webhostapp.com/");
+            client.Connect(serverAddress, 314);
+            NetworkStream stream = client.GetStream();
+            byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(stringToSend);
+            stream.Write(bytesToSend, 0, bytesToSend.Length);
+            client.Close();
+        }
+    }
 }
